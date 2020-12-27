@@ -20,11 +20,17 @@ import android.widget.Toast;
 
 import com.example.assignment2.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class UserLogin extends AppCompatActivity {
@@ -34,6 +40,8 @@ public class UserLogin extends AppCompatActivity {
 
     protected EditText email;
     protected EditText password;
+    protected String token = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +65,7 @@ public class UserLogin extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 login();
+                addUserToken();
             }
         });
     }
@@ -86,6 +95,38 @@ public class UserLogin extends AppCompatActivity {
                             }
                         }
                     });
+        }
+    }
+
+    private void addUserToken(){
+        try{
+            FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+            assert mUser != null;
+            mUser.getIdToken(true)
+                    .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                        public void onComplete(@NonNull Task<GetTokenResult> task) {
+                            if (task.isSuccessful()) {
+                                token = task.getResult().getToken();
+                                Map<String,String> userToken = new HashMap<>();
+                                userToken.put("token",token);
+                                FirebaseFirestore.getInstance().collection("Tokens").document(mUser.getUid()).set(userToken).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("hello", "DocumentSnapshot successfully written!");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("hello", "Error writing document", e);
+                                    }
+                                });
+                            } else {
+                                Log.d("hello",task.getException().toString());
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }

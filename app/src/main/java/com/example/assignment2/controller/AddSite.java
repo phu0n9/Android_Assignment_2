@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.assignment2.R;
@@ -39,11 +40,11 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AddSite extends AppCompatActivity {
-    protected EditText latitude;
-    protected EditText longitude;
+    protected TextView latitude;
+    protected TextView longitude;
     protected EditText siteName;
     protected EditText address;
-    protected EditText siteOwner;
+    protected TextView siteOwner;
     private CleaningSite cleaningSite;
     protected FirebaseUser userRecord;
 

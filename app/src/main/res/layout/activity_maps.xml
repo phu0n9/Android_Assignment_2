@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,15 +8,16 @@
     android:orientation="vertical">
 
     <SearchView
-        android:id="@+id/search_bar"
+        android:id="@+id/map_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <fragment
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment" >
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
         <TableLayout
             android:id="@+id/table"
             android:layout_width="match_parent"
@@ -26,69 +27,93 @@
             android:visibility="gone">
 
             <ImageView
+                android:id="@+id/site_image"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:id="@+id/site_image"/>
+                android:layout_height="100dp" />
 
             <TextView
-                android:layout_height="match_parent"
+                android:id="@+id/site_name"
                 android:layout_width="match_parent"
-                android:text="site name"
-                android:id="@+id/site_name"/>
+                android:layout_height="match_parent"
+                android:text="site name" />
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Address: "/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Address"
-                    android:id="@+id/site_address"/>
+                    android:text="Address: " />
+
+                <TextView
+                    android:id="@+id/site_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Address" />
             </TableRow>
 
             <TableRow
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
                 android:id="@+id/participants_table_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:visibility="gone">
-                <TextView
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:text="Participants"/>
 
                 <TextView
-                    android:layout_height="match_parent"
                     android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Participants" />
+
+                <TextView
                     android:id="@+id/participants"
-                    android:text="No one yet."/>
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="No one yet." />
 
             </TableRow>
 
 
             <TableRow
-                android:layout_height="match_parent"
-                android:layout_width="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
                 <Button
-                    android:layout_height="wrap_content"
+                    android:id="@+id/more_details_btn"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="More details"
+                    style="@style/Theme.AppCompat.Light"/>
+
+                <Button
+                    android:id="@+id/participate_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="participate"
-                    android:id="@+id/participate_btn"/>
+                    style="@style/Theme.AppCompat.Light"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <Button
+                    android:id="@+id/route_btn"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:text="Route"
+                    style="@style/Theme.AppCompat.Light"/>
 
                 <Button
+                    android:id="@+id/edit_btn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="get participants"
-                    android:id="@+id/participants_list"/>
-
+                    android:text="edit"
+                    android:visibility="gone"
+                    style="@style/Theme.AppCompat.Light"/>
             </TableRow>
+
+
 
         </TableLayout>
     </fragment>
 
-</RelativeLayout>
+</LinearLayout>

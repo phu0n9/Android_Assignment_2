@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".controller.AddSite"
+    tools:context=".controller.EditData"
     android:orientation="vertical">
 
     <TableLayout
@@ -18,7 +18,7 @@
                 android:layout_height="wrap_content"
                 android:text="Name" />
             <EditText
-                android:id="@+id/siteName"
+                android:id="@+id/edit_site_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -33,12 +33,28 @@
                 android:layout_height="wrap_content"
                 android:text="address" />
             <EditText
-                android:id="@+id/address"
+                android:id="@+id/edit_address_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="RMIT University"
                 android:inputType="textPostalAddress" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Participants" />
+
+            <TextView
+                android:id="@+id/edit_participants"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="No one yet." />
+
         </TableRow>
         <TableRow
             android:layout_width="match_parent"
@@ -48,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:text="Latitute" />
             <TextView
-                android:id="@+id/resLat"
+                android:id="@+id/edit_latitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -62,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:text="Longitute" />
             <TextView
-                android:id="@+id/resLong"
+                android:id="@+id/edit_longitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="10"
@@ -77,18 +93,18 @@
                 android:layout_height="wrap_content"
                 android:text="Site Owner" />
             <TextView
-                android:id="@+id/siteOwner"
+                android:id="@+id/edit_site_owner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"/>
+                android:ems="10"
+                android:hint="your email" />
         </TableRow>
 
     </TableLayout>
     <Button
-        android:id="@+id/confirm_button"
+        android:id="@+id/edit_confirm_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Confirm Add Site"
-        android:onClick="onConfirmAddSite"/>
+        android:text="Confirm Edit Site"/>
 
 </LinearLayout>
