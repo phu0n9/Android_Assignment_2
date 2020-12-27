@@ -2,6 +2,7 @@ package com.example.assignment2.controller.Service;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -28,7 +29,7 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(title)
                         .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT).setSound(Uri.parse("android.resource://"+this.getPackageName()+"/"+R.raw.sound_effect));
         NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
     }

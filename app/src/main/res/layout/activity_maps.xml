@@ -72,46 +72,41 @@
 
             </TableRow>
 
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <Button
-                    android:id="@+id/more_details_btn"
+            <HorizontalScrollView>
+                <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="More details"
-                    style="@style/Theme.AppCompat.Light"/>
+                    android:layout_height="match_parent">
 
-                <Button
-                    android:id="@+id/participate_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="participate"
-                    style="@style/Theme.AppCompat.Light"/>
-            </TableRow>
+                    <Button
+                        android:id="@+id/more_details_btn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="More details"
+                        style="@style/Theme.AppCompat.Light"/>
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <Button
-                    android:id="@+id/route_btn"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="Route"
-                    style="@style/Theme.AppCompat.Light"/>
+                    <Button
+                        android:id="@+id/participate_btn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="participate"
+                        style="@style/Theme.AppCompat.Light"/>
 
-                <Button
-                    android:id="@+id/edit_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="edit"
-                    android:visibility="gone"
-                    style="@style/Theme.AppCompat.Light"/>
-            </TableRow>
+                    <Button
+                        android:id="@+id/route_btn"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="Route"
+                        style="@style/Theme.AppCompat.Light"/>
 
-
+                    <Button
+                        android:id="@+id/edit_btn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="edit"
+                        android:visibility="gone"
+                        style="@style/Theme.AppCompat.Light"/>
+                </TableRow>
+            </HorizontalScrollView>
 
         </TableLayout>
     </fragment>

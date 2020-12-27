@@ -72,7 +72,7 @@ public class UserLogin extends AppCompatActivity {
 
 
     public void login(){
-        if(email.getText().toString().matches("") && password.getText().toString().matches("")){
+        if(email.getText().toString().matches("") || password.getText().toString().matches("")){
             Toast.makeText(this,"You havent sign in with email",Toast.LENGTH_SHORT).show();
         }
         else{

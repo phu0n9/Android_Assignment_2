@@ -119,7 +119,7 @@ public class EditData extends AppCompatActivity {
                     if(document.getData().get("participants") instanceof HashMap){
                         participantsList = (HashMap<String, String>) document.getData().get("participants");
                         assert participantsList != null;
-                        String str = (participantsList.keySet().toString()).replaceAll("]","");
+                        String str = (participantsList.keySet().toString()).replaceAll("\\[", "").replaceAll("\\]","");
                         Log.d("hello", str);
                         participants.setText(str);
                         userId.addAll(participantsList.values());

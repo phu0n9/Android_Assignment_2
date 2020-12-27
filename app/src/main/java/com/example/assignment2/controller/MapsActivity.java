@@ -11,13 +11,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -47,14 +47,11 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -65,9 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
-import static java.nio.file.Paths.get;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
@@ -97,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Polyline currentPoly;
     protected double currentLatitude,currentLongitude;
     protected MarkerOptions place1,place2;
-
+    private final Handler handler = new Handler();
 
 
     @Override
@@ -221,11 +216,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
-                                Marker marker = mMap.addMarker(new MarkerOptions()
-                                        .position(position)
-                                        .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.ic_baseline_battery_charging_full_24)));
-                                map.put(marker, document);
+                                db.collection("site").document(document.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                                        if (error != null) {
+                                            Log.d("hello", error.toString());
+                                            return;
+                                        }
+                                        try {
+                                            if (value != null && value.exists()) {
+                                                LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
+                                                Marker marker = mMap.addMarker(new MarkerOptions()
+                                                        .position(position)
+                                                        .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.ic_baseline_battery_charging_full_24)));
+                                                map.put(marker, document);
+                                            } else {
+                                                Log.d("hello", "Current data: null");
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
                             }
                         } else {
                             Log.d("hello", "Error getting documents.", task.getException());
@@ -237,13 +249,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void onMarkClick() {
         userEmail.clear();
         ownerEmail.clear();
-        map.clear();
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onMarkerClick(Marker marker) {
                 userRecord = FirebaseAuth.getInstance().getCurrentUser();
-                db.collection("site").document(map.get(marker).getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                db.collection("site").document(Objects.requireNonNull(map.get(marker)).getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -278,13 +289,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
                                 if (Objects.requireNonNull(Objects.requireNonNull(map.get(marker)).getData().get("participants")).getClass().getSimpleName().equals("String")) {
                                     checkParticipant = 1;
+                                    participants.setText("no one");
                                     setParticipantsOnClick(map.get(marker));
-                                    participants.setText("no one yet.");
+                                    onConfirmAddSite();
                                 } else {
                                     checkParticipant = 2;
                                     userEmail = (HashMap<String, String>) map.get(marker).getData().get("participants");
                                     setParticipantsOnClick(map.get(marker));
                                     getParticipantsAfterUpdating(marker);
+                                    onConfirmAddSite();
                                     Log.d("hello", "line " + userEmail);
                                 }
                                 onRoutingButtonClick(marker);
@@ -300,6 +313,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+        map.clear();
     }
 
     private void onCameraMove() {
@@ -405,10 +419,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     if (document.getData().get("participants") instanceof HashMap) {
                                         hashMap = (HashMap<String, String>) document.getData().get("participants");
                                         List<String> str = new ArrayList<>(hashMap.keySet());
-                                        String string = String.valueOf(str).replaceAll("]", "");
+                                        String string = String.valueOf(str).replaceAll("\\[", "").replaceAll("\\]","");
                                         Log.d("hello", string);
                                         participants.setText(string);
-
                                     }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -430,12 +443,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private String getUrl(LatLng origin, LatLng destination, String driverMode) {
+    private String getUrl(LatLng origin, LatLng destination) {
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         String str_dest = "destination=" + destination.latitude + "," + destination.longitude;
 
-        String mode = "mode=" + driverMode;
+        String mode = "mode=" + "driving";
 
         String parameters = str_origin + "&" + str_dest + "&" + mode;
 
@@ -471,10 +484,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 place1 = new MarkerOptions().position(new LatLng(currentLatitude,currentLongitude));
                 place2 = new MarkerOptions().position(new LatLng(marker.getPosition().latitude,marker.getPosition().longitude));
-                String url = getUrl(place1.getPosition(),place2.getPosition(),"driving");
+                String url = getUrl(place1.getPosition(),place2.getPosition());
                 Log.d("hello", "url='" + url + "'");
                 new FetchURL(MapsActivity.this).execute(url);
             }
         });
     }
+
+    //TODO: filtering and UI
+
 }
