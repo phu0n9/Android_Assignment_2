@@ -17,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +39,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -47,6 +47,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -79,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected SearchView searchView;
     protected Button editBtn;
     protected Button routeBtn;
+    protected Button getAccessBtn;
 
 
     protected Map<Marker, QueryDocumentSnapshot> map = new HashMap<>();
@@ -92,7 +94,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Polyline currentPoly;
     protected double currentLatitude,currentLongitude;
     protected MarkerOptions place1,place2;
-    private final Handler handler = new Handler();
 
 
     @Override
@@ -112,6 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         searchView = findViewById(R.id.map_search);
         editBtn = findViewById(R.id.edit_btn);
         routeBtn = findViewById(R.id.route_btn);
+        getAccessBtn = findViewById(R.id.get_access_btn);
     }
 
     /**
@@ -142,8 +144,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         searchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(MapsActivity.this,FilteringData.class);
-//                startActivity(intent);
+                Intent intent = new Intent(MapsActivity.this,FilteringData.class);
+                startActivity(intent);
             }
         });
     }
@@ -155,7 +157,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent intent = new Intent(MapsActivity.this, AddSite.class);
                 intent.putExtra("latitude", latLng.latitude);
                 intent.putExtra("longitude", latLng.longitude);
-                startActivity(intent);
+                setResult(RESULT_OK);
+                startActivityForResult(intent,100);
+                finish();
             }
         });
     }
@@ -173,10 +177,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 //zoom in the map
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .zoom(15)
+                        .target(latLng)      // Sets the center of the map to Mountain View
+                        .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                        .build();                   // Creates a CameraPosition from the builder
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker()));
-                Toast.makeText(MapsActivity.this, "(" + location.getLatitude() + "," + location.getLongitude() + ")", Toast.LENGTH_SHORT).show();
             }
         }, null);
     }
@@ -228,7 +236,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
                                                 Marker marker = mMap.addMarker(new MarkerOptions()
                                                         .position(position)
-                                                        .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.ic_baseline_battery_charging_full_24)));
+                                                        .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.battery)));
                                                 map.put(marker, document);
                                             } else {
                                                 Log.d("hello", "Current data: null");
@@ -300,7 +308,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     onConfirmAddSite();
                                     Log.d("hello", "line " + userEmail);
                                 }
-                                onRoutingButtonClick(marker);
                             }
                             else{
                                 Log.d("hello","Current data: null");
@@ -310,10 +317,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 });
+                onRoutingButtonClick(marker);
+                checkSuperUser(marker,userRecord);
+                setGetAccessBtn(map.get(marker).getId());
                 return false;
             }
         });
         map.clear();
+    }
+
+
+    private void checkSuperUser(Marker marker,FirebaseUser user){
+        db.collection("superUser").whereEqualTo("userId",user.getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(QueryDocumentSnapshot snapshot: queryDocumentSnapshots){
+                    if(snapshot.getData().get("userId").equals(user.getUid())){
+                        tableRow.setVisibility(View.VISIBLE);
+                        editBtn.setVisibility(View.VISIBLE);
+                        id = Objects.requireNonNull(map.get(marker)).getId();
+                        setEditBtn();
+                    }
+                }
+            }
+        });
     }
 
     private void onCameraMove() {
@@ -323,6 +350,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (i == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
                     table.setVisibility(View.GONE);
                 }
+            }
+        });
+    }
+
+    protected void setGetAccessBtn(String markerId){
+        getAccessBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapsActivity.this,GetAccess.class);
+                intent.putExtra("markerId",markerId);
+                startActivityForResult(intent,200);
+                Log.d("hello","Can you see this?");
             }
         });
     }
@@ -416,13 +455,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if(task.isSuccessful()){
                             DocumentSnapshot document = task.getResult();
                             try {
-                                    if (document.getData().get("participants") instanceof HashMap) {
-                                        hashMap = (HashMap<String, String>) document.getData().get("participants");
-                                        List<String> str = new ArrayList<>(hashMap.keySet());
-                                        String string = String.valueOf(str).replaceAll("\\[", "").replaceAll("\\]","");
-                                        Log.d("hello", string);
-                                        participants.setText(string);
-                                    }
+                                if (document.getData().get("participants") instanceof HashMap) {
+                                    hashMap = (HashMap<String, String>) document.getData().get("participants");
+                                    List<String> str = new ArrayList<>(hashMap.keySet());
+                                    String string = String.valueOf(str).replaceAll("\\[", "").replaceAll("\\]","");
+                                    Log.d("hello", string);
+                                    participants.setText(string);
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -438,7 +477,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Intent intent = new Intent(MapsActivity.this, EditData.class);
                 intent.putExtra("id", id);
-                startActivity(intent);
+                startActivityForResult(intent,300);
             }
         });
     }
@@ -491,6 +530,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    //TODO: filtering and UI
+    //TODO: filtering,and UI
 
 }

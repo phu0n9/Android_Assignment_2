@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".controller.GetAccess"
+    android:orientation="vertical">
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Site name: " />
+
+            <TextView
+                android:id="@+id/access_site_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="site name" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Address: " />
+
+            <TextView
+                android:id="@+id/access_address"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Address" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Latitude: " />
+
+            <TextView
+                android:id="@+id/access_latitude"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Latitude" />
+        </TableRow>
+
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Longitude: " />
+
+            <TextView
+                android:id="@+id/access_longitude"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Longitude" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/owner_access_row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Owner: " />
+
+        <TextView
+            android:id="@+id/access_owner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/row_participants_access"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Participants: " />
+
+            <TextView
+                android:id="@+id/access_participants"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="No one yet." />
+
+        </TableRow>
+
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkbox_access"
+            android:text="I have read the rules and terms"/>
+
+        <Button
+            android:id="@+id/access_btn"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="Get access"/>
+
+    </TableLayout>
+
+</LinearLayout>

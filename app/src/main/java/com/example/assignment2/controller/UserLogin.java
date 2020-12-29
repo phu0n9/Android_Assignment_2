@@ -101,7 +101,6 @@ public class UserLogin extends AppCompatActivity {
     private void addUserToken(){
         try{
             FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-            assert mUser != null;
             mUser.getIdToken(true)
                     .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                         public void onComplete(@NonNull Task<GetTokenResult> task) {

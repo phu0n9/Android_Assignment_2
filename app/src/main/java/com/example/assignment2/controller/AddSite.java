@@ -1,6 +1,7 @@
 package com.example.assignment2.controller;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -68,6 +69,7 @@ public class AddSite extends AppCompatActivity {
         latitude.setText(Double.toString(cleaningSite.getLat()));
         longitude.setText(Double.toString(cleaningSite.getLon()));
         siteOwner.setText(userRecord.getEmail());
+
     }
 
     public void addLatLong(){
