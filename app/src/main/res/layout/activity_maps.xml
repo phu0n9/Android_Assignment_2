@@ -105,6 +105,19 @@
             </HorizontalScrollView>
 
         </TableLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:tint="@color/white"
+            android:backgroundTint="@color/green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:src="@drawable/ic_baseline_refresh_24"
+            android:layout_margin="16dp"
+            android:paddingBottom="10dp"
+            android:contentDescription="refresh" />
+
     </fragment>
 
 </LinearLayout>

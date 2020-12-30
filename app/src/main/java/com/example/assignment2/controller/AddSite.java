@@ -121,7 +121,6 @@ public class AddSite extends AppCompatActivity {
     protected void onPostSite() {
         Toast.makeText(AddSite.this,"we have posted", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(AddSite.this, MapsActivity.class);
-        setResult(101, intent);
-        finish();
+        startActivityForResult(intent,101);
     }
 }

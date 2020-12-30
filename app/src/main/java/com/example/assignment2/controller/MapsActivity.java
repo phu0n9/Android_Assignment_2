@@ -49,12 +49,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -63,7 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
@@ -81,7 +82,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Button editBtn;
     protected Button routeBtn;
     protected Button getAccessBtn;
-
+    protected FloatingActionButton refreshBtn;
 
     protected Map<Marker, QueryDocumentSnapshot> map = new HashMap<>();
     protected FirebaseUser userRecord;
@@ -94,7 +95,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Polyline currentPoly;
     protected double currentLatitude,currentLongitude;
     protected MarkerOptions place1,place2;
-
+    protected int code = 0;
+    protected LatLng latLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,17 +116,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editBtn = findViewById(R.id.edit_btn);
         routeBtn = findViewById(R.id.route_btn);
         getAccessBtn = findViewById(R.id.get_access_btn);
+        refreshBtn = findViewById(R.id.fab);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -134,18 +128,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationClient = LocationServices.getFusedLocationProviderClient(this);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         onMapClick();
-        startLocationUpdate();
+        locationUpdate();
         onMarkClick();
         onCameraMove();
         onMapSearch();
+        setRefreshButton();
     }
 
     protected void onMapSearch() {
+        code = 0;
         searchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MapsActivity.this,FilteringData.class);
-                startActivity(intent);
+                setResult(RESULT_OK,intent);
+                startActivityForResult(intent,201);
             }
         });
     }
@@ -165,16 +162,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void locationUpdate(){
+        onConfirmAddSite();
+        startLocationUpdate();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @SuppressLint({"MissingPermission", "RestrictedApi"})
     private void startLocationUpdate() {
-        onConfirmAddSite();
         locationRequest = new LocationRequest();
         locationClient.requestLocationUpdates(locationRequest, new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location location = locationResult.getLastLocation();
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 //zoom in the map
                 CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -212,46 +214,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    private void setRefreshButton(){
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MapsActivity.this, MapsActivity.class);
+                finish();
+                overridePendingTransition(0, 0);
+                startActivity(i);
+                overridePendingTransition(0, 0);
+            }
+        });
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void onConfirmAddSite() {
         db = FirebaseFirestore.getInstance();
 
-        db.collection("site")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                db.collection("site").document(document.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                                        if (error != null) {
-                                            Log.d("hello", error.toString());
-                                            return;
-                                        }
-                                        try {
-                                            if (value != null && value.exists()) {
-                                                LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
-                                                Marker marker = mMap.addMarker(new MarkerOptions()
-                                                        .position(position)
-                                                        .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.battery)));
-                                                map.put(marker, document);
-                                            } else {
-                                                Log.d("hello", "Current data: null");
-                                            }
-                                        } catch (NumberFormatException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
+        if(code == 0){
+            db.collection("site")
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
+                                    Marker marker = mMap.addMarker(new MarkerOptions()
+                                            .position(position)
+                                            .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.battery)));
+                                    map.put(marker, document);
+                                }
+                            } else {
+                                Log.d("hello", "Error getting documents.", task.getException());
                             }
-                        } else {
-                            Log.d("hello", "Error getting documents.", task.getException());
                         }
-                    }
-                });
+                    });
+        }
+
     }
 
     private void onMarkClick() {
@@ -262,64 +263,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onMarkerClick(Marker marker) {
                 userRecord = FirebaseAuth.getInstance().getCurrentUser();
-                db.collection("site").document(Objects.requireNonNull(map.get(marker)).getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if(error != null){
-                            Log.d("hello",error.toString());
-                            return;
-                        }
-
-                        try{
-                            if(value != null && value.exists()){
-                                Log.d("hello","Current data: "+value.getData());
-                                Toast.makeText(MapsActivity.this,"Listen Data in maps activity",Toast.LENGTH_SHORT).show();
-                                onConfirmAddSite();
-
-                                table.setVisibility(View.VISIBLE);
-                                Log.d("hello", marker.getId() + " " + Objects.requireNonNull(map.get(marker)).getData().get("name"));
-                                siteName.setText((String) Objects.requireNonNull(map.get(marker)).getData().get("name"));
-                                address.setText((String) Objects.requireNonNull(map.get(marker)).getData().get("address"));
-                                if (map.get(marker).getData().get("owner") instanceof HashMap) {
-                                    ownerEmail = (HashMap<String, String>) map.get(marker).getData().get("owner");
-                                    assert ownerEmail != null;
-                                    if (Objects.equals(ownerEmail.get(userRecord.getEmail()), userRecord.getUid())) {
-                                        tableRow.setVisibility(View.VISIBLE);
-                                        editBtn.setVisibility(View.VISIBLE);
-                                        id = Objects.requireNonNull(map.get(marker)).getId();
-                                        setEditBtn();
-                                    } else {
-                                        Toast.makeText(MapsActivity.this, "You don't have the authorization to do this.", Toast.LENGTH_SHORT).show();
-                                        tableRow.setVisibility(View.GONE);
-                                        editBtn.setVisibility(View.GONE);
-                                    }
-                                }
-                                if (Objects.requireNonNull(Objects.requireNonNull(map.get(marker)).getData().get("participants")).getClass().getSimpleName().equals("String")) {
-                                    checkParticipant = 1;
-                                    participants.setText("no one");
-                                    setParticipantsOnClick(map.get(marker));
-                                    onConfirmAddSite();
-                                } else {
-                                    checkParticipant = 2;
-                                    userEmail = (HashMap<String, String>) map.get(marker).getData().get("participants");
-                                    setParticipantsOnClick(map.get(marker));
-                                    getParticipantsAfterUpdating(marker);
-                                    onConfirmAddSite();
-                                    Log.d("hello", "line " + userEmail);
-                                }
-                            }
-                            else{
-                                Log.d("hello","Current data: null");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                try{
+                    table.setVisibility(View.VISIBLE);
+                    Log.d("hello", marker.getId() + " " + Objects.requireNonNull(map.get(marker)).getData().get("name"));
+                    siteName.setText((String) Objects.requireNonNull(map.get(marker)).getData().get("name"));
+                    address.setText((String) Objects.requireNonNull(map.get(marker)).getData().get("address"));
+                    if (map.get(marker).getData().get("owner") instanceof HashMap) {
+                        ownerEmail = (HashMap<String, String>) map.get(marker).getData().get("owner");
+                        assert ownerEmail != null;
+                        if (Objects.equals(ownerEmail.get(userRecord.getEmail()), userRecord.getUid())) {
+                            tableRow.setVisibility(View.VISIBLE);
+                            editBtn.setVisibility(View.VISIBLE);
+                            id = Objects.requireNonNull(map.get(marker)).getId();
+                            setEditBtn();
+                        } else {
+                            Toast.makeText(MapsActivity.this, "You don't have the authorization to do this.", Toast.LENGTH_SHORT).show();
+                            tableRow.setVisibility(View.GONE);
+                            editBtn.setVisibility(View.GONE);
                         }
                     }
-                });
-                onRoutingButtonClick(marker);
-                checkSuperUser(marker,userRecord);
-                setGetAccessBtn(map.get(marker).getId());
+                    if (Objects.requireNonNull(Objects.requireNonNull(map.get(marker)).getData().get("participants")).getClass().getSimpleName().equals("String")) {
+                        checkParticipant = 1;
+                        participants.setText("no one");
+                    } else {
+                        checkParticipant = 2;
+                        userEmail = (HashMap<String, String>) map.get(marker).getData().get("participants");
+                    }
+                    setParticipantsOnClick(map.get(marker));
+                    getParticipantsAfterUpdating(marker);
+                    setGetAccessBtn(map.get(marker).getId());
+                    checkSuperUser(marker,userRecord);
+                    onRoutingButtonClick(marker);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return false;
             }
         });
@@ -448,26 +425,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void getParticipantsAfterUpdating(Marker marker) {
         db = FirebaseFirestore.getInstance();
         db.collection("site").document(map.get(marker).getId())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            DocumentSnapshot document = task.getResult();
-                            try {
-                                if (document.getData().get("participants") instanceof HashMap) {
-                                    hashMap = (HashMap<String, String>) document.getData().get("participants");
-                                    List<String> str = new ArrayList<>(hashMap.keySet());
-                                    String string = String.valueOf(str).replaceAll("\\[", "").replaceAll("\\]","");
-                                    Log.d("hello", string);
-                                    participants.setText(string);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                 @Override
+                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                     if(error != null){
+                         Log.d("hello",error.toString());
+                         return;
+                     }
+                     try {
+                         if(value != null && value.exists()){
+                             if (value.getData().get("participants") instanceof HashMap) {
+                                 hashMap = (HashMap<String, String>) value.getData().get("participants");
+                                 List<String> str = new ArrayList<>(hashMap.keySet());
+                                 String string = String.valueOf(str).replaceAll("\\[", "").replaceAll("\\]","");
+                                 Log.d("hello", string);
+                                 participants.setText(string);
+                             }
+                             else{
+                                 participants.setText(value.getData().get("participants").toString());
+                             }
+                         }
+                     } catch (Exception e) {
+                         e.printStackTrace();
+                     }
+                 }
+             });
         hashMap.clear();
     }
 
@@ -530,6 +512,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    //TODO: filtering,and UI
-
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        userRecord = FirebaseAuth.getInstance().getCurrentUser();
+        Map<String,String> str = new HashMap<>();
+        str.put(userRecord.getEmail(),userRecord.getUid());
+        code = requestCode;
+        if(requestCode == 201){
+            if(resultCode == RESULT_OK){
+                Bundle bundle = data.getExtras();
+                if(bundle != null){
+                    mMap.clear();
+                    map.clear();
+                    mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker()));
+                    String data1 = bundle.getString("data1");
+                    String data2 = bundle.getString("data2");
+                    if(data2.equals("Site you owned")){
+                        db.collection("site").whereEqualTo("owner",str).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                if(error != null){
+                                    Log.d("hello","Listen failed.",error);
+                                    return;
+                                }
+                                for(QueryDocumentSnapshot document: value){
+                                    if(document.getData().get("name").equals(data1) || document.getData().get("address").equals(data1)){
+                                        LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
+                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                .position(position)
+                                                .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.battery)));
+                                        map.put(marker,document);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        db.collection("site").whereEqualTo("participants",str).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                if(error != null){
+                                    Log.d("hello","Listen failed.",error);
+                                    return;
+                                }
+                                for(QueryDocumentSnapshot document: value){
+                                    if(document.getData().get("name").equals(data1) || document.getData().get("address").equals(data1)){
+                                        LatLng position = new LatLng(Double.parseDouble(Objects.requireNonNull(document.getData().get("latitude")).toString()), Double.parseDouble(Objects.requireNonNull(document.getData().get("longitude")).toString()));
+                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                .position(position)
+                                                .icon(bitmapDescriptorFromVector(MapsActivity.this, R.drawable.battery)));
+                                        map.put(marker,document);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                else{
+                    Log.d("hello","Data transfer between 2 activities failed.");
+                }
+            }
+        }
+        str.clear();
+    }
 }
