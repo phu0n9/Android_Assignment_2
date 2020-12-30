@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,12 +56,36 @@ public class GetAccess extends AppCompatActivity {
     protected Map<String,String> superUser = new HashMap<>();
     protected HashMap<String,String> ownerEmail = new HashMap<>();
     protected HashMap<String,String> userEmail = new HashMap<>();
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_access);
         onAccess();
+        setToolbar();
+        setToolbarBackBtn();
+    }
+
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GetAccess.this,MapsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 

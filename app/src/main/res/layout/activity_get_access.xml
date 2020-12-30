@@ -7,6 +7,7 @@
     tools:context=".controller.GetAccess"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar" />
 
     <TableLayout
         android:layout_width="match_parent"

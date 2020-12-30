@@ -3,6 +3,8 @@ package com.example.assignment2.controller;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -17,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -83,6 +86,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Button routeBtn;
     protected Button getAccessBtn;
     protected FloatingActionButton refreshBtn;
+    protected Toolbar toolbar;
+    protected Button backBtn;
+
 
     protected Map<Marker, QueryDocumentSnapshot> map = new HashMap<>();
     protected FirebaseUser userRecord;
@@ -117,7 +123,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         routeBtn = findViewById(R.id.route_btn);
         getAccessBtn = findViewById(R.id.get_access_btn);
         refreshBtn = findViewById(R.id.fab);
+        toolbar = findViewById(R.id.toolbar);
+        backBtn = findViewById(R.id.back_btn);
+        setToolbar();
+        setToolbarBackBtn();
     }
+
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.getMenu().clear();
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setBackgroundResource(R.color.green);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapsActivity.this,UserLogin.class);
+                startActivity(intent);
+            }
+        });
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -277,7 +307,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             id = Objects.requireNonNull(map.get(marker)).getId();
                             setEditBtn();
                         } else {
-                            Toast.makeText(MapsActivity.this, "You don't have the authorization to do this.", Toast.LENGTH_SHORT).show();
                             tableRow.setVisibility(View.GONE);
                             editBtn.setVisibility(View.GONE);
                         }
@@ -368,9 +397,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else if (Objects.equals(ownerEmail.get(user.getEmail()), user.getUid())) {
                 Toast.makeText(this, "You are owner of this site.", Toast.LENGTH_SHORT).show();
             } else {
-                Log.d("hello", "now this is " + user.getEmail());
-                Log.d("hello", "userEmail1 " + userEmail.get(user.getEmail()));
-                Log.d("hello", "userRecord1 " + user.getUid());
                 userEmail.put(user.getEmail(), user.getUid());
                 Toast.makeText(MapsActivity.this, "Thank you for joining us", Toast.LENGTH_SHORT).show();
                 db.collection("site").document(documentSnapshot.getId()).update("participants", userEmail)

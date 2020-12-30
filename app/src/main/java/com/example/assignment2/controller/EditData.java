@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -74,12 +75,37 @@ public class EditData extends AppCompatActivity {
     protected String title = "Site Owner update";
     protected  APIService apiService;
     public static final String CHANNEL_ID = "default_channel_id";
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_data);
         onEditing();
+        setToolbar();
+        setToolbarBackBtn();
+    }
+
+
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(EditData.this,MapsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void onEditing(){

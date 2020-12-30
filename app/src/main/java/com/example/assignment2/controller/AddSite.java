@@ -2,8 +2,10 @@ package com.example.assignment2.controller;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
@@ -12,9 +14,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +52,8 @@ public class AddSite extends AppCompatActivity {
     protected TextView siteOwner;
     private CleaningSite cleaningSite;
     protected FirebaseUser userRecord;
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +75,31 @@ public class AddSite extends AppCompatActivity {
         latitude.setText(Double.toString(cleaningSite.getLat()));
         longitude.setText(Double.toString(cleaningSite.getLon()));
         siteOwner.setText(userRecord.getEmail());
-
+        setToolbar();
+        setToolbarBackBtn();
     }
 
-    public void addLatLong(){
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AddSite.this,MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void onConfirmAddSite(View view){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String,Object> latlong = new HashMap<>();
@@ -83,7 +110,7 @@ public class AddSite extends AppCompatActivity {
         latlong.put("owner",ownerEmail);
         latlong.put("participants","no one");
 
-        if(address.getText().toString().matches("") && siteName.getText().toString().matches("")){
+        if(address.getText().toString().matches("") || siteName.getText().toString().matches("")){
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(AddSite.this);
             alertDialog.setTitle("Alert").setMessage("Please enter address and site name")
                     .setNegativeButton("Got it", (dialogInterface, i) -> dialogInterface.dismiss()).create().show();
@@ -91,14 +118,11 @@ public class AddSite extends AppCompatActivity {
         else {
             latlong.put("name",siteName.getText().toString());
             latlong.put("address",address.getText().toString());
-
             db.collection("site")
                     .add(latlong)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            String msg = "DocumentSnapshot added with ID: " + documentReference.getId();
-                            Toast.makeText(AddSite.this, msg, Toast.LENGTH_SHORT).show();
                             Log.d("MainActivity", "DocumentSnapshot added with ID:" + documentReference.getId());
                         }
                     })
@@ -109,18 +133,10 @@ public class AddSite extends AppCompatActivity {
                             Toast.makeText(AddSite.this, error, Toast.LENGTH_SHORT).show();
                         }
                     });
+            cleaningSite = new CleaningSite(siteName.getText().toString(),address.getText().toString());
+            Toast.makeText(AddSite.this,"we have posted", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(AddSite.this, MapsActivity.class);
+            startActivityForResult(intent,101);
         }
-    }
-
-    public void onConfirmAddSite(View view) {
-        addLatLong();
-        cleaningSite = new CleaningSite(siteName.getText().toString(),address.getText().toString());
-        onPostSite();
-    }
-
-    protected void onPostSite() {
-        Toast.makeText(AddSite.this,"we have posted", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(AddSite.this, MapsActivity.class);
-        startActivityForResult(intent,101);
     }
 }

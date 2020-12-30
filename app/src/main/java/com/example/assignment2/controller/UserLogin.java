@@ -3,6 +3,7 @@ package com.example.assignment2.controller;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 
 import android.app.Notification;
@@ -41,7 +42,8 @@ public class UserLogin extends AppCompatActivity {
     protected EditText email;
     protected EditText password;
     protected String token = null;
-
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +70,29 @@ public class UserLogin extends AppCompatActivity {
                 addUserToken();
             }
         });
+        setToolbar();
+        setToolbarBackBtn();
     }
 
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserLogin.this,WelcomeActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
 
     public void login(){
         if(email.getText().toString().matches("") || password.getText().toString().matches("")){

@@ -11,6 +11,12 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.assignment2.R;
 import com.google.firebase.messaging.RemoteMessage;
+//This code for the notification can be found at:
+//https://github.com/VaibhavMojidra/Send-Notification-from-one-user-to-another-using-Firebase-using-JAVA.git
+//With the modification to fit with the assignment
+//However, when the users log in with the new devices, the received token cannot
+//be found, therefore, it cannot send the notification right away.(New users can send notification to old users login in
+//different devices, but old users cannot)
 
 public class MyFirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
     String title,message;

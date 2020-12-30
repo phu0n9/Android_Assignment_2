@@ -7,6 +7,8 @@
     tools:context=".controller.AddSite"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar" />
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

@@ -7,6 +7,8 @@
     tools:context=".controller.MapsActivity"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar" />
+
     <SearchView
         android:id="@+id/map_search"
         android:layout_width="match_parent"
@@ -24,82 +26,99 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:stretchColumns="*">
 
             <TextView
                 android:id="@+id/site_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="site name" />
+                android:text="site name"
+                android:textSize="23dp"
+                android:textStyle="bold|italic" />
 
             <TableRow
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Address: " />
+                    android:text="Address: "
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/site_address"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Address" />
+                    android:text="Address"
+                    android:textSize="15dp"/>
             </TableRow>
 
             <TableRow
                 android:id="@+id/participants_table_row"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Participants" />
+                    android:text="Participants"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/participants"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="No one yet." />
+                    android:text="No one yet."
+                    android:textSize="15dp"/>
 
             </TableRow>
 
             <HorizontalScrollView>
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent">
 
                     <Button
                         android:id="@+id/get_access_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/white"
                         android:text="Get Access"
-                        style="@style/Theme.AppCompat.Light"/>
+                        android:backgroundTint="@color/orange"
+                        style="@style/Widget.AppCompat.Button"/>
 
                     <Button
                         android:id="@+id/participate_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="participate"
-                        style="@style/Theme.AppCompat.Light"/>
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/orange"
+                        android:text="Join"
+                        style="@style/Widget.AppCompat.Button"/>
 
                     <Button
                         android:id="@+id/route_btn"
-                        android:layout_height="wrap_content"
                         android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/orange"
                         android:text="Route"
-                        style="@style/Theme.AppCompat.Light"/>
+                        style="@style/Widget.AppCompat.Button" />
 
                     <Button
                         android:id="@+id/edit_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="edit"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/orange"
+                        android:text="Edit"
                         android:visibility="gone"
-                        style="@style/Theme.AppCompat.Light"/>
+                        style="@style/Widget.AppCompat.Button"/>
 
                 </TableRow>
             </HorizontalScrollView>

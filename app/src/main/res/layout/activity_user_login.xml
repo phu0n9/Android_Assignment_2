@@ -7,6 +7,8 @@
     tools:context=".controller.UserLogin"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +18,8 @@
         android:id="@+id/email_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"/>
+        android:inputType="textEmailAddress"
+        android:hint="name@gmail.com"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -27,7 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/password"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        android:hint="******"/>
 
     <TableRow
         android:layout_width="match_parent"
@@ -37,13 +41,15 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:id="@+id/sign_up"
-            android:text="sign up" />
+            android:text="sign up"
+            android:layout_weight="0.1"/>
 
         <Button
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="Log in"
-            android:id="@+id/log_in" />
+            android:id="@+id/log_in"
+            android:layout_weight="0.1"/>
 
     </TableRow>
 

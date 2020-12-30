@@ -2,6 +2,7 @@ package com.example.assignment2.controller;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +30,8 @@ public class FilteringData extends AppCompatActivity {
     protected RadioButton dataSiteParticipants;
 
     protected EditText searchActivity;
-    protected int checkState;
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,30 @@ public class FilteringData extends AppCompatActivity {
         dataSiteOwner = findViewById(R.id.data_your_site);
         dataSiteParticipants = findViewById(R.id.data_you_join);
         onClickSearch();
+        setToolbar();
+        setToolbarBackBtn();
     }
+
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FilteringData.this,MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
 
     public void onClickSearch(){
         Intent intent = new Intent(this,MapsActivity.class);

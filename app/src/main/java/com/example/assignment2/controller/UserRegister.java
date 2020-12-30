@@ -2,6 +2,7 @@ package com.example.assignment2.controller;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class UserRegister extends AppCompatActivity {
     protected EditText fullName ;
@@ -32,6 +34,8 @@ public class UserRegister extends AppCompatActivity {
     protected EditText address;
     protected EditText password ;
     protected FirebaseAuth mAuth;
+    protected Toolbar toolbar;
+    protected Button backBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +46,7 @@ public class UserRegister extends AppCompatActivity {
         password = findViewById(R.id.password);
         mobile = findViewById(R.id.mobile_number);
         address = findViewById(R.id.address);
-        fullName =findViewById(R.id.full_name);
+        fullName = findViewById(R.id.full_name);
 
         Button signUp = findViewById(R.id.sign_up);
         signUp.setOnClickListener(new View.OnClickListener() {
@@ -51,11 +55,34 @@ public class UserRegister extends AppCompatActivity {
                 register();
             }
         });
+        setToolbar();
+        setToolbarBackBtn();
+    }
+
+
+    private void setToolbar(){
+        toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.getMenu().clear();
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void setToolbarBackBtn(){
+        backBtn = findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserRegister.this,WelcomeActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void register(){
-        if(email.getText().toString().matches("") && password.getText().toString().matches("")){
-            Toast.makeText(this,"You should enter an username",Toast.LENGTH_SHORT).show();
+        if(email.getText().toString().matches("") || password.getText().toString().matches("")){
+            Toast.makeText(this,"You should enter an email",Toast.LENGTH_SHORT).show();
         }
         else{
             mAuth.createUserWithEmailAndPassword(email.getText().toString(),password.getText().toString())
