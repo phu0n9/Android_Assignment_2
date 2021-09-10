@@ -6,9 +6,14 @@ Vietnam Sach va Xanh has run 4 Earth Day Clean Ups where individuals and organis
 
 The system offers the following functionalities:
 
-    Ability for Clean Up Location Owners to create accounts, set up Clean Up Locations, Download lists of people who join their clean-ups, input data after the clean ups (i.e. how much was collected).
-    Ability for Volunteers to view registered clean up locations on a map, click on locations, register themselves (and friends) to a location
-    Ability for Vietnam Sach Va Xanh to run reports on the outcomes of the different cleanup locations (# of volunteers, Amount of waste collected... other data.).
+* Ability for Clean Up Location Owners to create accounts,
+* Set up Clean Up Locations
+* Download lists of people who join their clean-ups
+* Input data after the clean ups (i.e. how much was collected).
+* Ability for Volunteers to view registered clean up locations on a map
+* Click on locations
+* Register themselves (and friends) to a location
+* Ability for Vietnam Sach Va Xanh to run reports on the outcomes of the different cleanup locations (# of volunteers, Amount of waste collected... other data.).
 
 If you are still now clear about how the system works, please refer to the following websites. Try to create account and be owner of a cleaning site to get an idea how a real system looks like. 
 
